@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, url_for, flash, redirect, request, abort
 from flask_login import current_user, login_required
 from models import Post
-from firebase_config import db_fs
+from firebase_config import db_fs, firestore_module
 from datetime import datetime
 
 main = Blueprint('main', __name__)
@@ -11,9 +11,14 @@ def index():
     if not db_fs:
         return render_template('index.html', posts=[])
     
-    posts_ref = db_fs.collection('posts')
-    query = posts_ref.order_by('date_posted', direction='DESCENDING').stream()
-    posts = [Post.from_dict(doc.to_dict(), doc.id) for doc in query]
+    try:
+        posts_ref = db_fs.collection('posts')
+        query = posts_ref.order_by('date_posted', direction=firestore_module.Query.DESCENDING).stream()
+        posts = [Post.from_dict(doc.to_dict(), doc.id) for doc in query]
+    except Exception as e:
+        print(f"Error fetching posts: {e}")
+        posts = []
+        
     return render_template('index.html', posts=posts)
 
 @main.route('/admin')
