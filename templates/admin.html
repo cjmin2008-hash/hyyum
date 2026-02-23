@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="max-width: 800px;">
+    <h2>관리자 대시보드 <span class="admin-badge">ADMIN ONLY</span></h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem; text-align: center;">이곳은 시스템 관리자 전용 공간입니다.</p>
+
+    <div
+        style="background: rgba(15, 23, 42, 0.3); border-radius: 1rem; padding: 2rem; border: 1px solid var(--glass-border);">
+        <h3 style="margin-bottom: 1rem;">현재 시스템 상태</h3>
+        <ul style="list-style: none; color: var(--text-muted); line-height: 1.8;">
+            <li>✅ 데이터베이스 연결: 정상 (SQLite)</li>
+            <li>✅ 인증 모듈: 활성화</li>
+            <li>✅ 세션 관리: 정상</li>
+            <li>✅ 관리자 권한 확인: <strong>{{ current_user.name }}</strong> (ID: {{ current_user.username }})</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div
+            style="padding: 1.5rem; background: rgba(99, 102, 241, 0.1); border-radius: 1rem; border: 1px solid rgba(99, 102, 241, 0.2);">
+            <h4 style="color: #818cf8; margin-bottom: 0.5rem;">총 사용자</h4>
+            <span style="font-size: 1.5rem; font-weight: 800;">1 명</span>
+        </div>
+        <div
+            style="padding: 1.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 1rem; border: 1px solid rgba(16, 185, 129, 0.2);">
+            <h4 style="color: #10b981; margin-bottom: 0.5rem;">시스템 로그</h4>
+            <span style="font-size: 0.875rem; color: var(--text-muted);">정상 작동 중</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyeyum Auth - Premium</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="{{ url_for('main.index') }}" class="logo">Hyeyum</a>
+            <div class="nav-links">
+                <a href="{{ url_for('main.index') }}">홈</a>
+                {% if current_user.is_authenticated %}
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('main.admin_dashboard') }}">관리자 툴</a>
+                {% endif %}
+                <a href="{{ url_for('auth.logout') }}">로그아웃</a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}">로그인</a>
+                <a href="{{ url_for('auth.signup') }}">회원가입</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                <div class="flash">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</body>
+
+</html>

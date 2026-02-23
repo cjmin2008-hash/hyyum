@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="max-width: 800px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <a href="{{ url_for('main.board') }}"
+            style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">← 목록으로 돌아가기</a>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">{{ post.date_posted.strftime('%Y-%m-%d %H:%M')
+            }}</span>
+    </div>
+
+    <h2 style="text-align: left; margin-bottom: 0.5rem;">{{ post.title }}</h2>
+
+    <div
+        style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
+        <span style="font-weight: 600; color: var(--primary);">{{ post.author.name }}</span>
+        {% if post.author.is_admin %}
+        <span class="admin-badge" style="margin-left: 0;">ADMIN</span>
+        {% endif %}
+    </div>
+
+    <div
+        style="line-height: 1.8; color: var(--text-main); white-space: pre-wrap; margin-bottom: 3rem; min-height: 200px;">
+        {{ post.content }}
+    </div>
+
+    {% if current_user.is_authenticated and (post.author == current_user or current_user.is_admin) %}
+    <div style="display: flex; gap: 1rem; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
+        <a href="{{ url_for('main.update_post', post_id=post.id) }}" class="btn"
+            style="width: auto; padding: 0.6rem 1.5rem; margin-top: 0;">수정</a>
+        <button type="button" class="btn"
+            style="width: auto; padding: 0.6rem 1.5rem; background: var(--danger); margin-top: 0;"
+            onclick="if(confirm('정말 삭제하시겠습니까?')) document.getElementById('delete-form').submit();">삭제</button>
+        <form id="delete-form" action="{{ url_for('main.delete_post', post_id=post.id) }}" method="POST"
+            style="display: none;"></form>
+
+        {% if current_user.is_admin and post.author != current_user %}
+        <span style="display: flex; align-items: center; color: var(--danger); font-size: 0.8rem; font-weight: 600;">*
+            관리자 권한으로 접근 중</span>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
