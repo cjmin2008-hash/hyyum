@@ -1,0 +1,44 @@
+[debug] [2026-02-23T07:31:32.430Z] ----------------------------------------------------------------------
+[debug] [2026-02-23T07:31:32.432Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\JM Choi\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2026-02-23T07:31:32.432Z] CLI Version:   15.7.0
+[debug] [2026-02-23T07:31:32.432Z] Platform:      win32
+[debug] [2026-02-23T07:31:32.432Z] Node Version:  v22.17.0
+[debug] [2026-02-23T07:31:32.432Z] Time:          Mon Feb 23 2026 16:31:32 GMT+0900 (대한민국 표준시)
+[debug] [2026-02-23T07:31:32.432Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-23T07:31:33.509Z] Field "/functions" in "firebase.json" is possibly invalid: must be object
+[debug] [2026-02-23T07:31:33.509Z] Field "/functions" in "firebase.json" is possibly invalid: must be object
+[debug] [2026-02-23T07:31:33.509Z] Object "/functions/0" in "firebase.json" has unknown property: {"additionalProperty":"main"}
+[debug] [2026-02-23T07:31:33.509Z] Object "/functions/0" in "firebase.json" is missing required property: {"missingProperty":"remoteSource"}
+[debug] [2026-02-23T07:31:33.509Z] Field "/functions/0" in "firebase.json" is possibly invalid: must match a schema in anyOf
+[debug] [2026-02-23T07:31:33.509Z] Field "/functions" in "firebase.json" is possibly invalid: must match a schema in anyOf
+[debug] [2026-02-23T07:31:33.512Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-02-23T07:31:33.512Z] > authorizing via signed-in user (cjmin0930@gmail.com)
+[debug] [2026-02-23T07:31:33.512Z] [iam] checking project hyyum-hash for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-02-23T07:31:33.512Z] Checked if tokens are valid: true, expires at: 1771835481762
+[debug] [2026-02-23T07:31:33.512Z] Checked if tokens are valid: true, expires at: 1771835481762
+[debug] [2026-02-23T07:31:33.513Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/hyyum-hash:testIamPermissions [none]
+[debug] [2026-02-23T07:31:33.513Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/hyyum-hash:testIamPermissions  x-goog-user-project=hyyum-hash
+[debug] [2026-02-23T07:31:33.513Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/hyyum-hash:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-02-23T07:31:34.120Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/hyyum-hash:testIamPermissions 400
+[debug] [2026-02-23T07:31:34.120Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/hyyum-hash:testIamPermissions {"error":{"code":400,"message":"Project 'projects/hyyum-hash' not found or deleted.","status":"INVALID_ARGUMENT","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"USER_PROJECT_DENIED","domain":"googleapis.com","metadata":{"consumer":"projects/hyyum-hash","service":"cloudresourcemanager.googleapis.com","containerInfo":"projects/hyyum-hash"}}]}}
+[debug] [2026-02-23T07:31:34.121Z] [iam] error while checking permissions, command may fail: Request to https://cloudresourcemanager.googleapis.com/v1/projects/hyyum-hash:testIamPermissions had HTTP Error: 400, Project 'projects/hyyum-hash' not found or deleted.
+[debug] [2026-02-23T07:31:34.121Z] Checked if tokens are valid: true, expires at: 1771835481762
+[debug] [2026-02-23T07:31:34.121Z] Checked if tokens are valid: true, expires at: 1771835481762
+[debug] [2026-02-23T07:31:34.121Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/hyyum-hash/serviceAccounts/hyyum-hash@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2026-02-23T07:31:34.121Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/hyyum-hash/serviceAccounts/hyyum-hash@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2026-02-23T07:31:34.805Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/hyyum-hash/serviceAccounts/hyyum-hash@appspot.gserviceaccount.com:testIamPermissions 404
+[debug] [2026-02-23T07:31:34.805Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/hyyum-hash/serviceAccounts/hyyum-hash@appspot.gserviceaccount.com:testIamPermissions {"error":{"code":404,"message":"Unknown service account","status":"NOT_FOUND"}}
+[debug] [2026-02-23T07:31:34.805Z] [functions] service account IAM check errored, deploy may fail: Request to https://iam.googleapis.com/v1/projects/hyyum-hash/serviceAccounts/hyyum-hash@appspot.gserviceaccount.com:testIamPermissions had HTTP Error: 404, Unknown service account {"name":"FirebaseError","children":[],"context":{"body":{"error":{"code":404,"message":"Unknown service account","status":"NOT_FOUND"}},"response":{"statusCode":404}},"exit":1,"message":"Request to https://iam.googleapis.com/v1/projects/hyyum-hash/serviceAccounts/hyyum-hash@appspot.gserviceaccount.com:testIamPermissions had HTTP Error: 404, Unknown service account","status":404}
+[debug] [2026-02-23T07:31:34.805Z] Checked if tokens are valid: true, expires at: 1771835481762
+[debug] [2026-02-23T07:31:34.805Z] Checked if tokens are valid: true, expires at: 1771835481762
+[debug] [2026-02-23T07:31:34.806Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/hyyum-hash [none]
+[debug] [2026-02-23T07:31:35.564Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/hyyum-hash 403
+[debug] [2026-02-23T07:31:35.564Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/hyyum-hash {"error":{"code":403,"message":"The caller does not have permission","status":"PERMISSION_DENIED"}}
+[debug] [2026-02-23T07:31:35.564Z] Request to https://firebase.googleapis.com/v1beta1/projects/hyyum-hash had HTTP Error: 403, The caller does not have permission
+[debug] [2026-02-23T07:31:35.855Z] FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects/hyyum-hash had HTTP Error: 403, The caller does not have permission
+    at responseToError (C:\Users\JM Choi\AppData\Roaming\npm\node_modules\firebase-tools\lib\responseToError.js:53:12)
+    at RetryOperation._fn (C:\Users\JM Choi\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:330:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: Failed to get Firebase project hyyum-hash. Please make sure the project exists and your account has permission to access it.
