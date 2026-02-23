@@ -1,8 +1,11 @@
 import os
+import sys
 from flask import Flask
 from models import User
 from flask_login import LoginManager
 from firebase_config import db_fs
+
+print(f"Current Python Version: {sys.version}")
 
 def create_app():
     app = Flask(__name__)
@@ -15,6 +18,7 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
+        db_fs = get_firestore_client()
         if not db_fs:
             return None
         user_doc = db_fs.collection('users').document(user_id).get()
