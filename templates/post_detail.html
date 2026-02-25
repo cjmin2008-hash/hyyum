@@ -13,10 +13,7 @@
 
     <div
         style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
-        <span style="font-weight: 600; color: var(--primary);">{{ post.author.name }}</span>
-        {% if post.author.is_admin %}
-        <span class="admin-badge" style="margin-left: 0;">ADMIN</span>
-        {% endif %}
+        <span style="font-weight: 600; color: var(--primary);">{{ post.author_name }}</span>
     </div>
 
     <div
@@ -24,7 +21,7 @@
         {{ post.content }}
     </div>
 
-    {% if current_user.is_authenticated and (post.author == current_user or current_user.is_admin) %}
+    {% if current_user.is_authenticated and (post.author_id == current_user.id or current_user.is_admin) %}
     <div style="display: flex; gap: 1rem; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
         <a href="{{ url_for('main.update_post', post_id=post.id) }}" class="btn"
             style="width: auto; padding: 0.6rem 1.5rem; margin-top: 0;">수정</a>
@@ -34,7 +31,7 @@
         <form id="delete-form" action="{{ url_for('main.delete_post', post_id=post.id) }}" method="POST"
             style="display: none;"></form>
 
-        {% if current_user.is_admin and post.author != current_user %}
+        {% if current_user.is_admin and post.author_id != current_user.id %}
         <span style="display: flex; align-items: center; color: var(--danger); font-size: 0.8rem; font-weight: 600;">*
             관리자 권한으로 접근 중</span>
         {% endif %}
