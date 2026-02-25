@@ -3,7 +3,7 @@ import sys
 from flask import Flask
 from models import User
 from flask_login import LoginManager
-from firebase_config import db_fs
+from firebase_config import get_db
 
 print(f"Current Python Version: {sys.version}")
 
@@ -18,7 +18,7 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        db_fs = get_firestore_client()
+        db_fs = get_db()
         if not db_fs:
             return None
         user_doc = db_fs.collection('users').document(user_id).get()
@@ -35,6 +35,7 @@ def create_app():
     app.register_blueprint(main_blueprint)
 
     with app.app_context():
+        db_fs = get_db()
         if db_fs:
             try:
                 print("Firebase Firestore connected.")

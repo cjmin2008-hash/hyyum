@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 from models import User
-from firebase_config import db_fs
+from firebase_config import get_db
 from datetime import datetime
 
 auth = Blueprint('auth', __name__)
@@ -19,6 +19,7 @@ def login_post():
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
 
+    db_fs = get_db()
     if not db_fs:
         flash('데이터베이스 연동 설정이 필요합니다.')
         return redirect(url_for('auth.login'))
@@ -53,6 +54,7 @@ def signup_post():
     name = request.form.get('name')
     password = request.form.get('password')
 
+    db_fs = get_db()
     if not db_fs:
         flash('데이터베이스 연동 설정이 필요합니다.')
         return redirect(url_for('auth.signup'))

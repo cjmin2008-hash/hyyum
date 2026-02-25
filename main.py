@@ -1,13 +1,14 @@
 from flask import Blueprint, render_template, url_for, flash, redirect, request, abort
 from flask_login import current_user, login_required
 from models import Post
-from firebase_config import db_fs, firestore_module
+from firebase_config import get_db, firestore_module
 from datetime import datetime
 
 main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
+    db_fs = get_db()
     if not db_fs:
         return render_template('index.html', posts=[])
     
@@ -35,6 +36,7 @@ def board():
 @main.route('/post/new', methods=['GET', 'POST'])
 @login_required
 def new_post():
+    db_fs = get_db()
     if not db_fs:
         flash('데이터베이스 연동 설정이 필요합니다.')
         return redirect(url_for('main.index'))
@@ -59,6 +61,7 @@ def new_post():
 
 @main.route('/post/<string:post_id>')
 def post_detail(post_id):
+    db_fs = get_db()
     if not db_fs:
         abort(404)
     
@@ -72,6 +75,7 @@ def post_detail(post_id):
 @main.route('/post/<string:post_id>/update', methods=['GET', 'POST'])
 @login_required
 def update_post(post_id):
+    db_fs = get_db()
     if not db_fs:
         abort(404)
         
@@ -99,6 +103,7 @@ def update_post(post_id):
 @main.route('/post/<string:post_id>/delete', methods=['POST'])
 @login_required
 def delete_post(post_id):
+    db_fs = get_db()
     if not db_fs:
         abort(404)
         
