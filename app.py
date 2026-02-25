@@ -34,31 +34,6 @@ def create_app():
     from main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
-    with app.app_context():
-        db_fs = get_db()
-        if db_fs:
-            try:
-                print("Firebase Firestore connected.")
-                from werkzeug.security import generate_password_hash
-                from datetime import datetime
-                admin_username = 'admin'
-                users_ref = db_fs.collection('users')
-                query = users_ref.where('username', '==', admin_username).limit(1).stream()
-                if not next(query, None):
-                    admin_data = {
-                        'username': admin_username,
-                        'name': 'Administrator',
-                        'password': generate_password_hash('admin123', method='pbkdf2:sha256'),
-                        'is_admin': True,
-                        'created_at': datetime.utcnow()
-                    }
-                    db_fs.collection('users').add(admin_data)
-                    print(f"Admin user created in Firestore: {admin_username}")
-            except Exception as e:
-                print(f"Error during initial setup: {e}")
-        else:
-            print("WARNING: Firebase not initialized. Application may not work properly.")
-
     return app
 
 app = create_app()

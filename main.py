@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, url_for, flash, redirect, request, abort
 from flask_login import current_user, login_required
+from werkzeug.security import generate_password_hash
 from models import Post
 from firebase_config import get_db, firestore_module
 from datetime import datetime
@@ -12,6 +13,24 @@ def index():
     if not db_fs:
         return render_template('index.html', posts=[])
     
+    # [FIX] 관리자 계정이 없으면 여기서 한 번만 생성 (마스터 프로세스 충돌 방지용)
+    try:
+        admin_username = 'admin'
+        users_ref = db_fs.collection('users')
+        # 이미 있는지 확인
+        if not next(users_ref.where('username', '==', admin_username).limit(1).stream(), None):
+            admin_data = {
+                'username': admin_username,
+                'name': 'Administrator',
+                'password': generate_password_hash('admin123', method='pbkdf2:sha256'),
+                'is_admin': True,
+                'created_at': datetime.utcnow()
+            }
+            db_fs.collection('users').add(admin_data)
+            print(f"Admin user created in Firestore: {admin_username}")
+    except Exception as e:
+        print(f"Error during admin user check/creation: {e}")
+
     try:
         posts_ref = db_fs.collection('posts')
         query = posts_ref.order_by('date_posted', direction=firestore_module.Query.DESCENDING).stream()
