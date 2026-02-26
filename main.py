@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, url_for, flash, redirect, request, abort
 from flask_login import current_user, login_required
 from werkzeug.security import generate_password_hash
-from models import Post, User
+from models import Post, User, get_now_kst
 from firebase_config import get_db, firestore_module
 from datetime import datetime
 
@@ -88,7 +88,7 @@ def new_post():
                 'content': content,
                 'author_id': current_user.id,
                 'author_name': current_user.name,
-                'date_posted': datetime.utcnow()
+                'date_posted': get_now_kst()
             }
             db_fs.collection('posts').add(new_post_data)
             flash('게시글이 등록되었습니다!')
