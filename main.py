@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, url_for, flash, redirect, request, abort
 from flask_login import current_user, login_required
 from werkzeug.security import generate_password_hash
-from models import Post, User, get_now_kst, Log
+from models import Post, User, get_now_kst, Log, Comment
 from firebase_config import get_db, firestore_module
 from datetime import datetime
 
@@ -137,7 +137,25 @@ def post_detail(post_id):
         abort(404)
     
     post = Post.from_dict(post_doc.to_dict(), post_doc.id)
-    return render_template('post_detail.html', post=post)
+    
+    # 댓글 가져오기 (게시글의 서브 컬렉션 'comments' 또는 전역 'comments' 컬렉션에서 post_id로 필터링)
+    # 여기서는 확장성을 위해 전역 'comments' 컬렉션 사용
+    comments = []
+    try:
+        comments_ref = db_fs.collection('comments')
+        query = comments_ref.where('post_id', '==', post_id).order_by('timestamp', direction=firestore_module.Query.ASCENDING).stream()
+        comments = [Comment.from_dict(doc.to_dict(), doc.id) for doc in query]
+    except Exception as e:
+        print(f"Error fetching comments: {e}")
+        # 인덱스 미생성 시 정렬 없이 가져오기
+        try:
+            query = comments_ref.where('post_id', '==', post_id).stream()
+            comments = [Comment.from_dict(doc.to_dict(), doc.id) for doc in query]
+            comments.sort(key=lambda x: x.timestamp)
+        except:
+            comments = []
+
+    return render_template('post_detail.html', post=post, comments=comments)
 
 @main.route('/post/<string:post_id>/update', methods=['GET', 'POST'])
 @login_required
@@ -247,4 +265,77 @@ def pin_post(post_id):
         print(f"Error logging pin post: {e}")
 
     flash(f"{action_text} 완료되었습니다.")
+    return redirect(url_for('main.post_detail', post_id=post_id))
+
+@main.route('/post/<string:post_id>/comment', methods=['POST'])
+@login_required
+def add_comment(post_id):
+    content = request.form.get('content')
+    if not content:
+        flash('댓글 내용을 입력해주세요.')
+        return redirect(url_for('main.post_detail', post_id=post_id))
+    
+    db_fs = get_db()
+    if not db_fs:
+        abort(404)
+        
+    new_comment_data = {
+        'post_id': post_id,
+        'author_id': current_user.id,
+        'author_name': current_user.name,
+        'content': content,
+        'timestamp': get_now_kst()
+    }
+    
+    db_fs.collection('comments').add(new_comment_data)
+    
+    # [LOG] 댓글 작성 기록
+    try:
+        db_fs.collection('logs').add({
+            'action': '댓글 작성',
+            'user_id': current_user.id,
+            'user_name': current_user.name,
+            'details': f"게시글 ID: {post_id}, 내용: {content[:20]}...",
+            'timestamp': get_now_kst()
+        })
+    except Exception as e:
+        print(f"Error logging add comment: {e}")
+
+    flash('댓글이 등록되었습니다.')
+    return redirect(url_for('main.post_detail', post_id=post_id))
+
+@main.route('/comment/<string:comment_id>/delete', methods=['POST'])
+@login_required
+def delete_comment(comment_id):
+    db_fs = get_db()
+    if not db_fs:
+        abort(404)
+        
+    comment_ref = db_fs.collection('comments').document(comment_id)
+    comment_doc = comment_ref.get()
+    
+    if not comment_doc.exists:
+        abort(404)
+        
+    comment_data = comment_doc.to_dict()
+    # 작성자 본인이거나 관리자인 경우에만 삭제 가능
+    if comment_data.get('author_id') != current_user.id and not current_user.is_admin:
+        abort(403)
+        
+    post_id = comment_data.get('post_id')
+    comment_ref.delete()
+    
+    # [LOG] 댓글 삭제 기록
+    try:
+        db_fs.collection('logs').add({
+            'action': '댓글 삭제',
+            'user_id': current_user.id,
+            'user_name': current_user.name,
+            'details': f"게시글 ID: {post_id}, 내용: {comment_data.get('content')[:20]}...",
+            'timestamp': get_now_kst()
+        })
+    except Exception as e:
+        print(f"Error logging delete comment: {e}")
+
+    flash('댓글이 삭제되었습니다.')
     return redirect(url_for('main.post_detail', post_id=post_id))

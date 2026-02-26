@@ -49,5 +49,65 @@
         {% endif %}
     </div>
     {% endif %}
+
+    <!-- 댓글 구역 -->
+    <section class="comment-section">
+        <h3 style="margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="color: var(--primary);">💬</span> 댓글 {{ comments|length }}
+        </h3>
+
+        <!-- 댓글 목록 -->
+        <div class="comment-list">
+            {% for comment in comments %}
+            <div class="comment-item">
+                <div class="comment-header">
+                    <span class="comment-author">
+                        {{ comment.author_name }}
+                        {% if comment.author_id == post.author_id %}
+                        <span
+                            style="font-size: 0.65rem; background: rgba(99, 102, 241, 0.2); color: var(--primary); padding: 0.1rem 0.4rem; border-radius: 0.3rem; margin-left: 0.3rem;">작성자</span>
+                        {% endif %}
+                    </span>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="comment-date">{{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                        {% if current_user.is_authenticated and (comment.author_id == current_user.id or
+                        current_user.is_admin) %}
+                        <button type="button"
+                            style="background: none; border: none; color: var(--danger); font-size: 0.75rem; cursor: pointer; padding: 0;"
+                            onclick="if(confirm('댓글을 삭제하시겠습니까?')) document.getElementById('delete-comment-{{ comment.id }}').submit();">삭제</button>
+                        <form id="delete-comment-{{ comment.id }}"
+                            action="{{ url_for('main.delete_comment', comment_id=comment.id) }}" method="POST"
+                            style="display: none;"></form>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="comment-content">{{ comment.content }}</div>
+            </div>
+            {% else %}
+            <div style="text-align: center; color: var(--text-muted); padding: 2rem; font-size: 0.9rem;">
+                첫 번째 댓글을 남겨보세요!
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- 댓글 작성 폼 -->
+        {% if current_user.is_authenticated %}
+        <form action="{{ url_for('main.add_comment', post_id=post.id) }}" method="POST" class="comment-form">
+            <textarea name="content" placeholder="댓글을 입력해주세요..." required></textarea>
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn" style="width: auto; padding: 0.7rem 2rem; margin-top: 0;">댓글
+                    등록</button>
+            </div>
+        </form>
+        {% else %}
+        <div
+            style="background: rgba(15, 23, 42, 0.3); padding: 2rem; border-radius: 1rem; text-align: center; border: 1px dashed var(--glass-border);">
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">로그인 후 댓글을 작성할 수 있습니다.</p>
+            <a href="{{ url_for('auth.login') }}" class="btn"
+                style="display: inline-block; width: auto; padding: 0.6rem 2rem; margin-top: 0; text-decoration: none;">로그인하러
+                가기</a>
+        </div>
+        {% endif %}
+    </section>
 </div>
 {% endblock %}

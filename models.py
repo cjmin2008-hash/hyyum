@@ -106,3 +106,32 @@ class Log:
             'details': self.details,
             'timestamp': self.timestamp
         }
+
+class Comment:
+    def __init__(self, id, post_id, author_id, author_name, content, timestamp=None):
+        self.id = id
+        self.post_id = post_id
+        self.author_id = author_id
+        self.author_name = author_name
+        self.content = content
+        self.timestamp = timestamp or get_now_kst()
+
+    @staticmethod
+    def from_dict(source, id):
+        return Comment(
+            id=id,
+            post_id=source.get('post_id'),
+            author_id=source.get('author_id'),
+            author_name=source.get('author_name'),
+            content=source.get('content'),
+            timestamp=to_kst(source.get('timestamp'))
+        )
+
+    def to_dict(self):
+        return {
+            'post_id': self.post_id,
+            'author_id': self.author_id,
+            'author_name': self.author_name,
+            'content': self.content,
+            'timestamp': self.timestamp
+        }
