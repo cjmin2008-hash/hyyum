@@ -24,7 +24,7 @@ def index():
                 'name': 'Administrator',
                 'password': generate_password_hash('admin123', method='pbkdf2:sha256'),
                 'is_admin': True,
-                'created_at': datetime.utcnow()
+                'created_at': get_now_kst()
             }
             db_fs.collection('users').add(admin_data)
             print(f"Admin user created in Firestore: {admin_username}")

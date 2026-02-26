@@ -72,7 +72,7 @@ def signup_post():
         'name': name,
         'password': generate_password_hash(password, method='pbkdf2:sha256'),
         'is_admin': False,
-        'created_at': datetime.utcnow()
+        'created_at': get_now_kst()
     }
     
     db_fs.collection('users').add(new_user_data)
