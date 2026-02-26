@@ -46,7 +46,7 @@ def index():
 def admin_dashboard():
     if not current_user.is_admin:
         abort(403)
-    
+    db_fs = get_db()
     users = []
     logs = []
     if db_fs:
