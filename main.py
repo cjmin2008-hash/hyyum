@@ -33,18 +33,14 @@ def index():
 
     try:
         posts_ref = db_fs.collection('posts')
-        # 고정글 우선(is_pinned DESC), 그 다음 최신순(date_posted DESC) 정렬
-        try:
-            query = posts_ref.order_by('is_pinned', direction=firestore_module.Query.DESCENDING)\
-                             .order_by('date_posted', direction=firestore_module.Query.DESCENDING).stream()
-            posts = [Post.from_dict(doc.to_dict(), doc.id) for doc in query]
-        except Exception as e:
-            print(f"Error fetching posts with multi-sort (likely index missing): {e}")
-            # 인덱스가 없을 경우 기본 최신순으로 가져온 뒤 메모리에서 정렬하거나, 그냥 최신순으로 표시
-            query = posts_ref.order_by('date_posted', direction=firestore_module.Query.DESCENDING).stream()
-            posts = [Post.from_dict(doc.to_dict(), doc.id) for doc in query]
-            # 메모리에서 고정글 우선 정렬 수행
-            posts.sort(key=lambda x: x.is_pinned, reverse=True)
+        # [FIX] Firestore order_by는 해당 필드가 없는 문서를 결과에서 누락시킵니다.
+        # 모든 게시글을 안전하게 가져오기 위해 정렬 없이 스트림을 받은 후 파이썬에서 정렬합니다.
+        docs = posts_ref.stream()
+        posts = [Post.from_dict(doc.to_dict(), doc.id) for doc in docs]
+        
+        # 1순위: 고정 여부(is_pinned), 2순위: 작성 시간(date_posted) 내림차순 정렬
+        # timestamp()를 사용하여 안전하게 비교
+        posts.sort(key=lambda x: (x.is_pinned, x.date_posted.timestamp() if x.date_posted else 0), reverse=True)
     except Exception as e:
         print(f"Error fetching posts: {e}")
         posts = []
