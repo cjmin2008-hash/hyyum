@@ -25,7 +25,7 @@ def init_db():
         if not User.query.filter_by(username=admin_username).first():
             admin_user = User(
                 username=admin_username,
-                name='관리',
+                name='관리자',
                 password=generate_password_hash('admin123', method='pbkdf2:sha256'),
                 is_admin=True
             )

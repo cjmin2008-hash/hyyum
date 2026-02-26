@@ -21,7 +21,7 @@ def index():
         if not next(users_ref.where('username', '==', admin_username).limit(1).stream(), None):
             admin_data = {
                 'username': admin_username,
-                'name': '관리',
+                'name': '관리자',
                 'password': generate_password_hash('admin123', method='pbkdf2:sha256'),
                 'is_admin': True,
                 'created_at': get_now_kst()
