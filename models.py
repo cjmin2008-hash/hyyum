@@ -47,13 +47,14 @@ class User(UserMixin):
         }
 
 class Post:
-    def __init__(self, id, title, content, author_id, author_name, date_posted=None):
+    def __init__(self, id, title, content, author_id, author_name, date_posted=None, is_pinned=False):
         self.id = id
         self.title = title
         self.content = content
         self.author_id = author_id
         self.author_name = author_name
         self.date_posted = date_posted or get_now_kst()
+        self.is_pinned = is_pinned
 
     @staticmethod
     def from_dict(source, id):
@@ -63,7 +64,8 @@ class Post:
             content=source.get('content'),
             author_id=source.get('author_id'),
             author_name=source.get('author_name'),
-            date_posted=to_kst(source.get('date_posted'))
+            date_posted=to_kst(source.get('date_posted')),
+            is_pinned=source.get('is_pinned', False)
         )
 
     def to_dict(self):
@@ -72,7 +74,8 @@ class Post:
             'content': self.content,
             'author_id': self.author_id,
             'author_name': self.author_name,
-            'date_posted': self.date_posted
+            'date_posted': self.date_posted,
+            'is_pinned': self.is_pinned
         }
 
 class Log:

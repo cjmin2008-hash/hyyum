@@ -33,8 +33,18 @@ def index():
 
     try:
         posts_ref = db_fs.collection('posts')
-        query = posts_ref.order_by('date_posted', direction=firestore_module.Query.DESCENDING).stream()
-        posts = [Post.from_dict(doc.to_dict(), doc.id) for doc in query]
+        # 고정글 우선(is_pinned DESC), 그 다음 최신순(date_posted DESC) 정렬
+        try:
+            query = posts_ref.order_by('is_pinned', direction=firestore_module.Query.DESCENDING)\
+                             .order_by('date_posted', direction=firestore_module.Query.DESCENDING).stream()
+            posts = [Post.from_dict(doc.to_dict(), doc.id) for doc in query]
+        except Exception as e:
+            print(f"Error fetching posts with multi-sort (likely index missing): {e}")
+            # 인덱스가 없을 경우 기본 최신순으로 가져온 뒤 메모리에서 정렬하거나, 그냥 최신순으로 표시
+            query = posts_ref.order_by('date_posted', direction=firestore_module.Query.DESCENDING).stream()
+            posts = [Post.from_dict(doc.to_dict(), doc.id) for doc in query]
+            # 메모리에서 고정글 우선 정렬 수행
+            posts.sort(key=lambda x: x.is_pinned, reverse=True)
     except Exception as e:
         print(f"Error fetching posts: {e}")
         posts = []
@@ -206,3 +216,39 @@ def delete_post(post_id):
 
     flash('게시글이 삭제되었습니다!')
     return redirect(url_for('main.index'))
+
+@main.route('/post/<string:post_id>/pin', methods=['POST'])
+@login_required
+def pin_post(post_id):
+    if not current_user.is_admin:
+        abort(403)
+        
+    db_fs = get_db()
+    if not db_fs:
+        abort(404)
+        
+    post_doc = db_fs.collection('posts').document(post_id).get()
+    if not post_doc.exists:
+        abort(404)
+        
+    post_data = post_doc.to_dict()
+    new_pin_status = not post_data.get('is_pinned', False)
+    
+    db_fs.collection('posts').document(post_id).update({'is_pinned': new_pin_status})
+    
+    action_text = "게시글 고정" if new_pin_status else "게시글 고정 해제"
+    
+    # [LOG] 고정/해제 기록
+    try:
+        db_fs.collection('logs').add({
+            'action': action_text,
+            'user_id': current_user.id,
+            'user_name': current_user.name,
+            'details': f"제목: '{post_data.get('title')}' (ID: {post_id})",
+            'timestamp': get_now_kst()
+        })
+    except Exception as e:
+        print(f"Error logging pin post: {e}")
+
+    flash(f"{action_text} 완료되었습니다.")
+    return redirect(url_for('main.post_detail', post_id=post_id))

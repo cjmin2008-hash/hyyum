@@ -22,14 +22,26 @@
     </div>
 
     {% if current_user.is_authenticated and (post.author_id == current_user.id or current_user.is_admin) %}
-    <div style="display: flex; gap: 1rem; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
+    <div
+        style="display: flex; flex-wrap: wrap; gap: 1rem; border-top: 1px solid var(--glass-border); padding-top: 2rem;">
         <a href="{{ url_for('main.update_post', post_id=post.id) }}" class="btn"
             style="width: auto; padding: 0.6rem 1.5rem; margin-top: 0;">수정</a>
+
         <button type="button" class="btn"
             style="width: auto; padding: 0.6rem 1.5rem; background: var(--danger); margin-top: 0;"
             onclick="if(confirm('정말 삭제하시겠습니까?')) document.getElementById('delete-form').submit();">삭제</button>
         <form id="delete-form" action="{{ url_for('main.delete_post', post_id=post.id) }}" method="POST"
             style="display: none;"></form>
+
+        {% if current_user.is_admin %}
+        <button type="button" class="btn"
+            style="width: auto; padding: 0.6rem 1.5rem; background: {% if post.is_pinned %}var(--text-muted){% else %}var(--primary){% endif %}; margin-top: 0;"
+            onclick="document.getElementById('pin-form').submit();">
+            {% if post.is_pinned %}고정 해제{% else %}상단 고정{% endif %}
+        </button>
+        <form id="pin-form" action="{{ url_for('main.pin_post', post_id=post.id) }}" method="POST"
+            style="display: none;"></form>
+        {% endif %}
 
         {% if current_user.is_admin and post.author_id != current_user.id %}
         <span style="display: flex; align-items: center; color: var(--danger); font-size: 0.8rem; font-weight: 600;">*

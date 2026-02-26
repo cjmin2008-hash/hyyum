@@ -25,12 +25,20 @@
         <div style="display: grid; gap: 1rem;">
             {% for post in posts %}
             <a href="{{ url_for('main.post_detail', post_id=post.id) }}" style="text-decoration: none; color: inherit;">
-                <div style="padding: 1.5rem; background: rgba(15, 23, 42, 0.3); border-radius: 1rem; border: 1px solid var(--glass-border); transition: transform 0.2s, border-color 0.2s;"
+                <div style="padding: 1.5rem; background: {% if post.is_pinned %}rgba(59, 130, 246, 0.1){% else %}rgba(15, 23, 42, 0.3){% endif %}; border-radius: 1rem; border: 1px solid {% if post.is_pinned %}var(--primary){% else %}var(--glass-border){% endif %}; transition: transform 0.2s, border-color 0.2s;"
                     onmouseover="this.style.borderColor='var(--primary)'; this.style.transform='translateY(-3px)'"
-                    onmouseout="this.style.borderColor='var(--glass-border)'; this.style.transform='translateY(0)'">
+                    onmouseout="this.style.borderColor='{% if post.is_pinned %}var(--primary){% else %}var(--glass-border){% endif %}'; this.style.transform='translateY(0)'">
                     <div
                         style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                        <h3 style="font-size: 1.25rem; font-weight: 700;">{{ post.title }}</h3>
+                        <h3
+                            style="font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                            {% if post.is_pinned %}
+                            <span
+                                style="font-size: 0.7rem; background: var(--primary); color: white; padding: 0.2rem 0.5rem; border-radius: 0.4rem;">📌
+                                고정</span>
+                            {% endif %}
+                            {{ post.title }}
+                        </h3>
                         <span style="font-size: 0.75rem; color: var(--text-muted);">{{
                             post.date_posted.strftime('%Y-%m-%d') }}</span>
                     </div>
