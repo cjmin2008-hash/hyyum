@@ -46,10 +46,14 @@
 
     <div
         style="margin-top: 2rem; background: rgba(15, 23, 42, 0.3); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--glass-border); overflow-x: auto;">
-        <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-            📜 데이터베이스 로그
-            <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-muted);">최신 10건</span>
-        </h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="margin-bottom: 0; display: flex; align-items: center; gap: 0.5rem;">
+                📜 데이터베이스 로그
+                <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-muted);">최신 10건</span>
+            </h3>
+            <a href="{{ url_for('main.all_logs') }}"
+                style="font-size: 0.85rem; color: var(--primary); text-decoration: none;">전체 보기 →</a>
+        </div>
 
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
