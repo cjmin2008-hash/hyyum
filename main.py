@@ -83,6 +83,30 @@ def admin_dashboard():
                 
     return render_template('admin.html', users=users, logs=logs)
 
+@main.route('/admin/logs')
+@login_required
+def all_logs():
+    if not current_user.is_admin:
+        abort(403)
+        
+    db_fs = get_db()
+    logs = []
+    if db_fs:
+        try:
+            logs_ref = db_fs.collection('logs')
+            query_logs = logs_ref.order_by('timestamp', direction=firestore_module.Query.DESCENDING).stream()
+            logs = [Log.from_dict(doc.to_dict(), doc.id) for doc in query_logs]
+        except Exception as e:
+            print(f"Error fetching all logs for admin: {e}")
+            try:
+                # 인덱스 미생성 시 정렬 없이 가져온 후 파이썬에서 정렬
+                logs = [Log.from_dict(doc.to_dict(), doc.id) for doc in logs_ref.stream()]
+                logs.sort(key=lambda x: x.timestamp, reverse=True)
+            except:
+                logs = []
+                
+    return render_template('admin_logs.html', logs=logs)
+
 @main.route('/board')
 def board():
     return redirect(url_for('main.index'))

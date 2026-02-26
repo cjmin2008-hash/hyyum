@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="max-width: 1000px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="text-align: left; margin-bottom: 0;">전체 시스템 로그</h2>
+        <a href="{{ url_for('main.admin_dashboard') }}" class="btn"
+            style="width: auto; padding: 0.6rem 1.2rem; margin-top: 0; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border);">←
+            대시보드로 돌아가기</a>
+    </div>
+
+    <!-- 로그 테이블 -->
+    <div
+        style="overflow-x: auto; background: rgba(15, 23, 42, 0.3); border-radius: 1rem; border: 1px solid var(--glass-border);">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--glass-border); background: rgba(255,255,255,0.05);">
+                    <th style="padding: 1rem; text-align: left; color: var(--text-muted);">작업</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-muted);">사용자</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-muted);">상세 내용</th>
+                    <th style="padding: 1rem; text-align: left; color: var(--text-muted);">일시</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 1rem;">
+                        <span style="padding: 0.2rem 0.5rem; border-radius: 0.4rem; font-size: 0.75rem; font-weight: 600;
+                            {% if '삭제' in log.action or '해제' in log.action %} background: rgba(239, 68, 68, 0.2); color: #f87171;
+                            {% elif '작성' in log.action or '고정' in log.action %} background: rgba(16, 185, 129, 0.2); color: #34d399;
+                            {% elif '가입' in log.action %} background: rgba(99, 102, 241, 0.2); color: #818cf8;
+                            {% else %} background: rgba(255,255,255,0.1); color: var(--text-muted); {% endif %}">
+                            {{ log.action }}
+                        </span>
+                    </td>
+                    <td style="padding: 1rem;">{{ log.user_name }}</td>
+                    <td
+                        style="padding: 1rem; color: var(--text-muted); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        {{ log.details }}
+                    </td>
+                    <td style="padding: 1rem; font-size: 0.8rem; color: var(--text-muted);">
+                        {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="padding: 3rem; text-align: center; color: var(--text-muted);">로그 데이터가 없습니다.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
