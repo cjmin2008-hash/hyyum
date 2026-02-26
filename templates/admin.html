@@ -6,27 +6,42 @@
     <p style="color: var(--text-muted); margin-bottom: 2rem; text-align: center;">이곳은 시스템 관리자 전용 공간입니다.</p>
 
     <div
-        style="background: rgba(15, 23, 42, 0.3); border-radius: 1rem; padding: 2rem; border: 1px solid var(--glass-border);">
-        <h3 style="margin-bottom: 1rem;">현재 시스템 상태</h3>
-        <ul style="list-style: none; color: var(--text-muted); line-height: 1.8;">
-            <li>✅ 데이터베이스 연결: 정상 (SQLite)</li>
-            <li>✅ 인증 모듈: 활성화</li>
-            <li>✅ 세션 관리: 정상</li>
-            <li>✅ 관리자 권한 확인: <strong>{{ current_user.name }}</strong> (ID: {{ current_user.username }})</li>
-        </ul>
-    </div>
+        style="background: rgba(15, 23, 42, 0.3); border-radius: 1rem; padding: 1.5rem; border: 1px solid var(--glass-border); overflow-x: auto;">
+        <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            👥 회원 목록
+            <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-muted);">총 {{ users|length }}명</span>
+        </h3>
 
-    <div style="margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-        <div
-            style="padding: 1.5rem; background: rgba(99, 102, 241, 0.1); border-radius: 1rem; border: 1px solid rgba(99, 102, 241, 0.2);">
-            <h4 style="color: #818cf8; margin-bottom: 0.5rem;">총 사용자</h4>
-            <span style="font-size: 1.5rem; font-weight: 800;">1 명</span>
-        </div>
-        <div
-            style="padding: 1.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 1rem; border: 1px solid rgba(16, 185, 129, 0.2);">
-            <h4 style="color: #10b981; margin-bottom: 0.5rem;">시스템 로그</h4>
-            <span style="font-size: 0.875rem; color: var(--text-muted);">정상 작동 중</span>
-        </div>
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--glass-border); color: var(--text-muted); font-size: 0.9rem;">
+                    <th style="padding: 1rem;">아이디</th>
+                    <th style="padding: 1rem;">이름</th>
+                    <th style="padding: 1rem;">권한</th>
+                    <th style="padding: 1rem;">가입일</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s;"
+                    onmouseover="this.style.background='rgba(255, 255, 255, 0.03)'"
+                    onmouseout="this.style.background='transparent'">
+                    <td style="padding: 1rem; font-weight: 600;">{{ user.username }}</td>
+                    <td style="padding: 1rem;">{{ user.name }}</td>
+                    <td style="padding: 1rem;">
+                        {% if user.is_admin %}
+                        <span class="admin-badge" style="font-size: 0.7rem; padding: 0.1rem 0.5rem;">ADMIN</span>
+                        {% else %}
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">USER</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+                        {{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else '-' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}

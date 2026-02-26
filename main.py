@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, url_for, flash, redirect, request, abort
 from flask_login import current_user, login_required
 from werkzeug.security import generate_password_hash
-from models import Post
+from models import Post, User
 from firebase_config import get_db, firestore_module
 from datetime import datetime
 
@@ -46,7 +46,24 @@ def index():
 def admin_dashboard():
     if not current_user.is_admin:
         abort(403)
-    return render_template('admin.html')
+    
+    db_fs = get_db()
+    users = []
+    if db_fs:
+        try:
+            users_ref = db_fs.collection('users')
+            # 가입일순 정렬 (created_at 필드가 없는 경우를 대비해 예외 처리 포함)
+            query = users_ref.order_by('created_at', direction=firestore_module.Query.DESCENDING).stream()
+            users = [User.from_dict(doc.to_dict(), doc.id) for doc in query]
+        except Exception as e:
+            print(f"Error fetching users for admin: {e}")
+            # 정렬 에러 발생 시(인덱스 미생성 등) 그냥 전체 가져오기 시도
+            try:
+                users = [User.from_dict(doc.to_dict(), doc.id) for doc in users_ref.stream()]
+            except:
+                users = []
+                
+    return render_template('admin.html', users=users)
 
 @main.route('/board')
 def board():
