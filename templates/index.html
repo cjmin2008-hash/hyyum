@@ -14,7 +14,7 @@
 
     <div class="card" style="max-width: 900px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h2 style="margin-bottom: 0; text-align: left;">최신 게시글</h2>
+            <h2 style="margin-bottom: 0; text-align: left;">게시판</h2>
             {% if current_user.is_authenticated %}
             <a href="{{ url_for('main.new_post') }}" class="btn"
                 style="width: auto; padding: 0.6rem 1.2rem; margin-top: 0;">글쓰기</a>
