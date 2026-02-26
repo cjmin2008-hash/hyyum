@@ -9,6 +9,11 @@
         {% if current_user.is_admin %}
         <span class="admin-badge">ADMIN</span>
         {% endif %}
+        {% else %}
+        <p
+            style="color: #fbbf24; font-weight: 700; margin-top: 1rem; font-size: 1.1rem; text-decoration: underline; text-underline-offset: 4px;">
+            로그인전 필독 꼭 확인해주세요
+        </p>
         {% endif %}
     </div>
 
