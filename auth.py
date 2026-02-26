@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
-from models import User
+from models import User, get_now_kst
 from firebase_config import get_db
 from datetime import datetime
 
@@ -40,6 +40,19 @@ def login_post():
 
     user = User.from_dict(user_data, user_doc.id)
     login_user(user, remember=remember)
+    
+    # [LOG] 로그인 기록
+    try:
+        db_fs.collection('logs').add({
+            'action': '로그인',
+            'user_id': user.id,
+            'user_name': user.name,
+            'details': f"'{user.username}' 계정으로 로그인했습니다.",
+            'timestamp': get_now_kst()
+        })
+    except Exception as e:
+        print(f"Error logging login: {e}")
+
     return redirect(url_for('main.index'))
 
 @auth.route('/signup')
@@ -75,7 +88,20 @@ def signup_post():
         'created_at': get_now_kst()
     }
     
-    db_fs.collection('users').add(new_user_data)
+    new_user_ref = db_fs.collection('users').add(new_user_data)
+    
+    # [LOG] 회원가입 기록
+    try:
+        db_fs.collection('logs').add({
+            'action': '회원가입',
+            'user_id': new_user_ref[1].id,
+            'user_name': name,
+            'details': f"새로운 회원 '{username}'이 가입했습니다.",
+            'timestamp': get_now_kst()
+        })
+    except Exception as e:
+        print(f"Error logging signup: {e}")
+
     flash('회원가입이 완료되었습니다! 로그인해주세요.')
     return redirect(url_for('auth.login'))
 

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, url_for, flash, redirect, request, abort
 from flask_login import current_user, login_required
 from werkzeug.security import generate_password_hash
-from models import Post, User, get_now_kst
+from models import Post, User, get_now_kst, Log
 from firebase_config import get_db, firestore_module
 from datetime import datetime
 
@@ -47,23 +47,35 @@ def admin_dashboard():
     if not current_user.is_admin:
         abort(403)
     
-    db_fs = get_db()
     users = []
+    logs = []
     if db_fs:
+        # 회원 목록 가져오기
         try:
             users_ref = db_fs.collection('users')
-            # 가입일순 정렬 (created_at 필드가 없는 경우를 대비해 예외 처리 포함)
-            query = users_ref.order_by('created_at', direction=firestore_module.Query.DESCENDING).stream()
-            users = [User.from_dict(doc.to_dict(), doc.id) for doc in query]
+            query_users = users_ref.order_by('created_at', direction=firestore_module.Query.DESCENDING).stream()
+            users = [User.from_dict(doc.to_dict(), doc.id) for doc in query_users]
         except Exception as e:
             print(f"Error fetching users for admin: {e}")
-            # 정렬 에러 발생 시(인덱스 미생성 등) 그냥 전체 가져오기 시도
             try:
                 users = [User.from_dict(doc.to_dict(), doc.id) for doc in users_ref.stream()]
             except:
                 users = []
+
+        # 로그 목록 가져오기 (최신 10개)
+        try:
+            logs_ref = db_fs.collection('logs')
+            query_logs = logs_ref.order_by('timestamp', direction=firestore_module.Query.DESCENDING).limit(10).stream()
+            logs = [Log.from_dict(doc.to_dict(), doc.id) for doc in query_logs]
+        except Exception as e:
+            print(f"Error fetching logs for admin: {e}")
+            try:
+                # 인덱스 미생성 시 정렬 없이 가져오기
+                logs = [Log.from_dict(doc.to_dict(), doc.id) for doc in logs_ref.limit(10).stream()]
+            except:
+                logs = []
                 
-    return render_template('admin.html', users=users)
+    return render_template('admin.html', users=users, logs=logs)
 
 @main.route('/board')
 def board():
@@ -90,7 +102,20 @@ def new_post():
                 'author_name': current_user.name,
                 'date_posted': get_now_kst()
             }
-            db_fs.collection('posts').add(new_post_data)
+            post_ref = db_fs.collection('posts').add(new_post_data)
+            
+            # [LOG] 게시글 작성 기록
+            try:
+                db_fs.collection('logs').add({
+                    'action': '게시글 작성',
+                    'user_id': current_user.id,
+                    'user_name': current_user.name,
+                    'details': f"제목: '{title}'",
+                    'timestamp': get_now_kst()
+                })
+            except Exception as e:
+                print(f"Error logging new post: {e}")
+
             flash('게시글이 등록되었습니다!')
             return redirect(url_for('main.index'))
     return render_template('post_form.html', title='새 글 작성', legend='새 글 작성')
@@ -130,6 +155,19 @@ def update_post(post_id):
             'content': request.form.get('content')
         }
         db_fs.collection('posts').document(post_id).update(updated_data)
+        
+        # [LOG] 게시글 수정 기록
+        try:
+            db_fs.collection('logs').add({
+                'action': '게시글 수정',
+                'user_id': current_user.id,
+                'user_name': current_user.name,
+                'details': f"제목: '{updated_data['title']}' (ID: {post_id})",
+                'timestamp': get_now_kst()
+            })
+        except Exception as e:
+            print(f"Error logging update post: {e}")
+
         flash('게시글이 수정되었습니다!')
         return redirect(url_for('main.post_detail', post_id=post_id))
     
@@ -153,5 +191,18 @@ def delete_post(post_id):
         abort(403)
     
     db_fs.collection('posts').document(post_id).delete()
+    
+    # [LOG] 게시글 삭제 기록
+    try:
+        db_fs.collection('logs').add({
+            'action': '게시글 삭제',
+            'user_id': current_user.id,
+            'user_name': current_user.name,
+            'details': f"제목: '{post_data.get('title')}' (ID: {post_id})",
+            'timestamp': get_now_kst()
+        })
+    except Exception as e:
+        print(f"Error logging delete post: {e}")
+
     flash('게시글이 삭제되었습니다!')
     return redirect(url_for('main.index'))

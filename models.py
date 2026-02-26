@@ -74,3 +74,32 @@ class Post:
             'author_name': self.author_name,
             'date_posted': self.date_posted
         }
+
+class Log:
+    def __init__(self, id, action, user_id, user_name, details, timestamp=None):
+        self.id = id
+        self.action = action
+        self.user_id = user_id
+        self.user_name = user_name
+        self.details = details
+        self.timestamp = timestamp or get_now_kst()
+
+    @staticmethod
+    def from_dict(source, id):
+        return Log(
+            id=id,
+            action=source.get('action'),
+            user_id=source.get('user_id'),
+            user_name=source.get('user_name'),
+            details=source.get('details'),
+            timestamp=to_kst(source.get('timestamp'))
+        )
+
+    def to_dict(self):
+        return {
+            'action': self.action,
+            'user_id': self.user_id,
+            'user_name': self.user_name,
+            'details': self.details,
+            'timestamp': self.timestamp
+        }
